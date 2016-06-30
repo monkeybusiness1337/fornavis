@@ -1,0 +1,19 @@
+<html>
+<head>
+<script src="http://code.jquery.com/jquery-latest.min.js"
+        type="text/javascript"></script>
+
+</head>
+<body>
+<script>
+
+        $.getJSON("testalot.json", function(json) {
+	console.log("helo") ;
+    console.log(json[0]); // this will show the info it in firebug console
+}).fail( function(d, textStatus, error) {
+        console.error("getJSON failed, status: " + textStatus + ", error: "+error)
+    });
+
+</script>
+</body>
+</html>

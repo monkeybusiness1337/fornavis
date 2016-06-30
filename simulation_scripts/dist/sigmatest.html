@@ -1,0 +1,75 @@
+<html><head><style type="text/css">#container {
+    max-width: 400px;
+    height: 400px;
+    margin: auto;
+  }</style></head><body><div id="container"></div><div id=""></div><script src="scripts/fornac.js"></script><!-- endbuild --><script src="scripts/d3_modified.js"></script><script src="scripts/cola.v3.min.js"></script><script src="scripts/sigma.min.js"></script><script src="scripts/sigma.parsers.json.min.js"></script><script src="scripts/sigma.layout.forceAtlas2.min.js"></script><div id="container"></div><script>let container = new fornac.FornaContainer("#rna_ss",
+            {'applyForce': true, 'allowPanningAndZooming': true, 'initialSize':[1000,1000],
+                'friction': 0.9,
+                'middleCharge': -130,
+                'otherCharge': -500,
+                'linkDistanceMultiplier': 15,
+                'chargeDistance': 110
+            }); 
+        let options = {'structure': '(((((..........))))).............((((((...................))))))((((((.......))))))....((..((((.....(((((((....)))))))......))))..))........',
+        'sequence': 'GCACCAUUGCACUCCGGUGCCAGUUGACGAGGUGGGGUUUAUCGAGAUUUCGGCGGAUGACUCCCGGUUGUUCAUCACAACCGCAAGCUUUUACUUAAAUCAUUAAGGUGACUUAGUGGACAAAGGUGAAAGUGUGAUGA'
+    };
+    var jsoncode = container.addRNA(options.structure, options);
+    console.log(jsoncode) ;
+    container.setSize();
+    
+    
+    
+    for(var i = 0 ; i < jsoncode.nodes.length ; i++){
+        console.log(jsoncode.nodes[i].name) ;
+    }
+      
+      
+      
+    // Let's first initialize sigma:
+    var s = new sigma('container');
+    
+    var settings = {
+        linLogMode: false,
+        outboundAttractionDistribution: false,
+        adjustSizes: false,
+        edgeWeightInfluence: 0,
+        scalingRatio: 1,
+        strongGravityMode: false,
+        gravity: 1,
+        slowDown: 1,
+        barnesHutOptimize: false,
+        barnesHutTheta: 0.5,
+        startingIterations: 1,
+        iterationsPerRender: 1
+      } ;
+
+    // Then, let's add some data to display:
+    s.graph.addNode({
+      // Main attributes:
+      id: 'n0',
+      label: 'Hello',
+      // Display attributes:
+      x: 0,
+      y: 0,
+      size: 1,
+      color: '#f00'
+    }).addNode({
+      // Main attributes:
+      id: 'n1',
+      label: 'World !',
+      // Display attributes:
+      x: 1,
+      y: 1,
+      size: 1,
+      color: '#00f'
+    }).addEdge({
+      id: 'e0',
+      // Reference extremities:
+      source: 'n0',
+      target: 'n1'
+    });
+
+    //s.startForceAtlas2(settings);
+
+    // Finally, let's ask our sigma instance to refresh:
+    s.refresh();</script></body></html>

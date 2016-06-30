@@ -1,0 +1,456 @@
+<html>
+    <head>
+        <script src="http://code.jquery.com/jquery-latest.min.js" type="text/javascript"></script>
+        <script src="//code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
+        <link rel="stylesheet" href="css/dashboard.css">
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
+        <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+        <script type="text/javascript" src="scripts/dashboard.js"></script>
+        <script src="scripts/fornac.js"></script>
+        <script src="https://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+        <!-- Latest compiled and minified CSS -->
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.10.0/css/bootstrap-select.min.css">
+        <!-- Latest compiled and minified JavaScript -->
+        <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.10.0/js/bootstrap-select.min.js"></script>
+        <!-- taken from: https://github.com/gnarf/jquery-ajaxQueue
+             Copyright (c) 2013 Corey Frang
+             Licensed under the MIT license. -->
+        <script type="text/javascript" src="scripts/jquery.ajaxQueue.min.js"></script>
+        <link rel="stylesheet" href="css/jquery.fileupload.css">
+        <link rel="stylesheet" href="css/jquery.fileupload-ui.css">
+        <title>Fornavis</title>
+    </head>
+    <body>
+        <div id="startContainer">
+            <div id="menuContainer" style="width: 600px;margin: 0 auto;">
+                <h2 style="color: #E14542 !important ;">
+                    <img src="img/logo.png" style="height: 30px; margin-top: -6px; margin-right: 15px"/>F O R N A <span style="color: #E18942 !important">V I S</span>
+                    <span style="color: gray; font-size: 14pt; fong-weight: bold; float: right; display: block; margin-top:11px" id="currentStepIndicator">WELCOME</span>
+                    <span style="clear: both"></span>
+                </h2>
+                <hr/>
+                <div>
+                    <div id="firstStep">
+                        <div class="alert alert-info" style="text-align: center; font-size:15pt" id="welcomeAlert">
+                        Welcome to Fornavis, a visualization tool that helps you to understand how different input parameters affect the RNA secondary structure graph layout of the Forna Container.
+                        Upload you simulation files or use an already exisiting filebase.
+                        </div>
+                        <div id="fileUploadOrExistingButtonContainer">
+                            <button class="btn btn-primary" style="width:49%; margin-top: 10px; float: left" id="useFileUpload">Upload Simulationfiles</button>
+                            <button class="btn btn-success" style="width:49%; margin-top: 10px; float: left; margin-left: 3px" id="useExistingFiles">Use existing Simulationsfiles</button>
+                        </div>
+                        <div style="clear: both"></div>
+                        <div id="fileUploadContainer" style="display: none">
+                            <div class="alert alert-success" style="text-align: center; display: none" id="uploadSuccessAlert">
+                            Successfully uploaded the simulation files!
+                            </div>
+                            <form id="fileupload" action="//jquery-file-upload.appspot.com/" method="POST" enctype="multipart/form-data" style="overflow-x: hidden; overflow-y: scroll; max-height: 300px; border: 1px dashed gray">
+                                <!-- Redirect browsers with JavaScript disabled to the origin page -->
+                                <div class="row fileupload-buttonbar">
+                                    <div style="margin-left: 20px;margin-top:5px">
+                                        <!-- The fileinput-button span is used to style the file input field as button -->
+                                        <span class="btn btn-success fileinput-button">
+                                            <i class="glyphicon glyphicon-plus"></i>
+                                            <span>Add files...</span>
+                                            <input type="file" name="files[]" multiple>
+                                        </span>
+                                        <button type="submit" class="btn btn-primary start">
+                                            <i class="glyphicon glyphicon-upload"></i>
+                                            <span>Start upload</span>
+                                        </button>
+                                        <button type="reset" class="btn btn-warning cancel" style="display: none">
+                                            <i class="glyphicon glyphicon-ban-circle"></i>
+                                            <span>Cancel upload</span>
+                                        </button>
+                                        <button type="button" class="btn btn-danger delete">
+                                            <i class="glyphicon glyphicon-trash"></i>
+                                            <span>Delete</span>
+                                        </button>
+                                        <input type="checkbox" class="toggle">
+                                        <!-- The global file processing state -->
+                                        <span class="fileupload-process"></span>
+                                    </div>
+                                    <!-- The global progress state -->
+                                    <div class="col-lg-5 fileupload-progress fade" style="height:10px">
+                                        <!-- The global progress bar -->
+                                        <div class="progress progress-striped active" role="progressbar" aria-valuemin="0" aria-valuemax="100">
+                                            <div class="progress-bar progress-bar-success" style="width:0%;"></div>
+                                        </div>
+                                        <!-- The extended global progress state -->
+                                        <div class="progress-extended">&nbsp;</div>
+                                    </div>
+                                </div>
+                                <!-- The table listing the files available for upload/download -->
+                                <table role="presentation" class="table table-striped" id="uploadTable"><tbody class="files"></tbody></table>
+                            </form>
+                            <button class="btn btn-danger" style="width:49%; margin-top: 10px; float: left" id="fileUploadBack">Back</button>
+                            <button class="btn btn-success" style="width:49%; margin-top: 10px; float: left; margin-left: 3px; display: none" id="fileuploadSuccessNext">Next</button>
+                            <div style="clear: both"></div>
+                        </div>
+                    </div>
+                    <div id="simDataSelectionContainer" style="display: none">
+                        <table class="table" style="text-align:center" id="simulationsTable">
+                            <thead>
+                              <tr>
+                                <th style="text-align:center">Name</th>
+                                <th style="text-align:center"># Structures</th>
+                                <th style="text-align:center"># Parametercombinations</th>
+                                <th style="text-align:center">Details</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                            </tbody>
+                          </table>
+                          <button class="btn btn-danger" style="width:49%; margin-top: 10px; float: left" id="simDataSelectionBack">Back</button>
+                          <button class="btn btn-success" style="width:49%; margin-top: 10px; float: left; margin-left: 3px;" id="simDataSelectionNext">Next</button>
+                          <div style="clear: both"></div>
+                    </div>
+                    <div id="loadingIconContainer" style="display: none">
+                        <div class="loadingIcon" style="margin: 0 auto; margin-top: 100px;"><span class="glyphicon glyphicon-refresh" style="color: #5cb85c"></span></div>
+                        <div style="width: 218px; margin: 0 auto; margin-top: 15px; color: #5cb85c !important ; margin-bottom: 100px; font-weight: bold; font-size: 10pt" id="loadsimtxt">Loading Simulation Informations...</div>
+                    </div>
+                    <div id="secondStep" style="display: none">
+                        <div class="alert alert-info" style="text-align: center">
+                                Congratulations! Your simulationfiles have been successfully loaded. Please choose a range of structuresizes you want to explore.
+                        </div>
+                        <div style="width: 445px; margin: 0 auto;">
+                            <div style="float: left; width: 50%" id="structSizeMinContainer">
+                                <h3 style="text-align: center">Min. Structuresize</h3>
+                                <div class="dropdown" style="width: 100%">
+                                    <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown" style="width: 100%">Structure Size: <span id="ssmin"></span>
+                                        <span class="caret"></span></button>
+                                        <ul class="dropdown-menu" style="width:100%">
+                                        </ul>
+                                </div>
+                            </div>
+                            <div style="float: left; width: 50%" id="structSizeMaxContainer">
+                                <h3 style="text-align: center">Max. Structuresize</h3>
+                                <div class="dropdown" style="width: 100%">
+                                    <button class="btn btn-default dropdown-toggle" type="button" data-toggle="dropdown" style="width: 100%">Structure Size:  <span id="ssmax"></span>
+                                        <span class="caret"></span></button>
+                                        <ul class="dropdown-menu" style="width:100%">
+                                        </ul>
+                                </div>
+                            </div>
+                            <div style="clear:both"></div>
+                            <button class="btn btn-danger" style="width:49%; margin-top: 10px; float: left" id="secondStepBack">Back</button>
+                            <button class="btn btn-primary" style="width:49%; margin-top: 10px; float: left; margin-left: 3px" id="selectedStructsizesInStepTwo">Next</button>
+                            <div style="clear: both"></div>
+                        </div>
+                    </div>
+                    <div id="thirdStep" style="display: none">
+                        <div class="alert alert-info" style="text-align: center" id="thridStepAlert">
+                            Please select <span id="twoKeyWord">two</span> metrics you want to explore from the list below.
+                        </div>
+                        <div style="width: 445px; margin: 0 auto">
+                            <div style="float: left;">
+                                <h3 style="text-align: center">Metrics</h3>
+                                <div class="btn-group btn-group-vertical" id="leftMetricsPicker">
+                                  <button class="btn btn-default">Linkcollisions</button>
+                                  <button class="btn btn-default">Nodecollisions</button>
+                                  <button class="btn btn-default">Backbonelinklength Deviations</button>
+                                  <button class="btn btn-default">Loop Roundness</button>
+                                </div>
+                            </div>
+                            <div style="float: left;">
+                                <h3 style="text-align: center">Metrics</h3>
+                                <div class="btn-group btn-group-vertical" id="rightMetricsPicker">
+                                  <button class="btn btn-default">Linkcollisions</button>
+                                  <button class="btn btn-default">Nodecollisions</button>
+                                  <button class="btn btn-default">Backbonelinklength Deviations</button>
+                                  <button class="btn btn-default">Loop Roundness</button>
+                                </div>
+                            </div>
+                            <div style="clear:both"></div>
+                            <button class="btn btn-danger" style="width:49%; margin-top: 10px; float: left" id="thirdStepBack">Back</button>
+                            <button class="btn btn-primary" style="width:49%; margin-top: 10px; float: left; margin-left: 3px" id="startVisualization">Start Visualization</button>
+                            <div style="clear: both"></div>
+                        </div>
+                    </div>
+                    <div id="initializationProgressContainer" style="display: none">
+                        <div class="alert alert-info" style="text-align: center" id="thridStepAlert">
+                            Now, the application is beeing initialized, that may take a few minutes depending on the size of the simulation dataset and the computing power of your cpu. This initialization
+                            process is for the sake of performance. All available simulation data is loaded into cache that you have less waiting time while exploring the data.
+                        </div>
+                        <div class="progress" id="initProgress" style="height:30px">
+                            <div class="progress-bar progress-bar-success progress-bar-striped active" role="progressbar"
+                            aria-valuenow="1" aria-valuemin="0" aria-valuemax="100" style="width:0%; padding-top:5px" id="initProgressInner">
+                            </div>
+                        </div>
+                        <div style="width:100%; text-align: center" id="progressInfo">
+                            Calculating parameter ranges...
+                        </div>
+                        <button class="btn btn-danger" style="width:49%; margin-top: 50px;" id="abortInitProgress">Cancle</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+       <div id="overlay"></div>
+       <div id="curValHelper" style="display: none"></div>
+       <div id="fornatestContainer">
+           <div id="fornacLeft" style="float: left; width: 49%; padding: 15px; border-right: 1px solid #eee; height:95%">
+               <div id="selectmenuContainerStructuresLeft" style="margin-bottom: 10px; width: 100%">
+                    <select class="selectpicker">
+                       
+                    </select>
+                </div>
+               <div id="selectmenuContainerCombinationsLeft" style="margin-bottom: 10px; width: 50%">
+                    <select class="selectpicker">
+                        
+                    </select>
+                </div>
+                <button class="btn btn-primary" id="runTestLeft">Run</button>
+                <hr/>
+                <div class="alert alert-info" role="alert" style="width: 200px; padding: 10px;display: none; position: absolute; margin-left: 10px; margin-top: 10px" id="outcomesLeft">
+                </div>
+                <div id="rna_ss_left" style="border: 1px solid #eee; height: 80%; "></div>
+           </div>
+           <div id="fornacRight" style="float: left; width: 49%; padding: 15px; border-left: 1px solid #eee ; margin-left: 10px; height:95%">
+               
+               <div id="selectmenuContainerStructuresRight" style="margin-bottom: 10px; width: 100%">
+                    <select class="selectpicker">
+                        
+                    </select>
+                </div>
+               <div id="selectmenuContainerCombinationsRight" style="margin-bottom: 10px; width: 50%">
+                    <select class="selectpicker">
+                       
+                    </select>
+                </div>
+                <button class="btn btn-primary" id="runTestRight">Run</button>
+                <hr/>
+                <div class="alert alert-info" role="alert" style="width: 200px; padding: 10px;display: none; position: absolute; margin-left: 10px; margin-top: 10px" id="outcomesRight">
+                </div>
+                <div id="rna_ss_right" style="border: 1px solid #eee; height: 80%; "></div>
+           </div>
+           <div style="clear:both"></div>
+           <button class="btn btn-primary" id="closeTestContainer">Close</button>
+       </div>
+        <div id="clusteredPointsDetailsContainer">
+            <div class="alert alert-danger" role="alert" id="clusterPointsDetailContainerErrors" style="width: 100%; padding: 10px; display: none;"></div>
+            <div id="clusteredPointsDetails"></div>
+            <button id="testSelectedCombinations" class="btn btn-primary">Test Combination(s)</button>
+            <button id="closeClusteredPointsDetails" class="btn btn-default">Close</button>
+        </div>
+        <div id="dashboardContainer" style="margin-top: 10px">
+            <div style="width:49%; float: left" id="inputparamDash">
+                <div class="row">
+                    <div class="col-md-4">
+                        <div style="width: 96%; height: 280px; background-color: lightgray; padding-left: 120px; padding-top: 120px; position:absolute; z-index:9999; opacity: 0.75" id="frictionFrequencyDistributionLoadingContainer"><div class="loadingIcon"><span class="glyphicon glyphicon-refresh"></span></div></div>
+                        <div id="frictionDash">
+                            <div id="frictionControl" style=""></div>
+                            <div id="frictionFrequencyDistribution" class="chartContainer"></div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div style="width: 96%; height: 280px; background-color: lightgray; padding-left: 120px; padding-top: 120px; position:absolute; z-index:9999; opacity: 0.75" id="chargeFrequencyDistributionLoadingContainer"><div class="loadingIcon"><span class="glyphicon glyphicon-refresh"></span></div></div>
+                        <div id="chargeDash">
+                            <div id="chargeControl" style=""></div>
+                            <div id="chargeFrequencyDistribution" class="chartContainer"></div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div style="width: 96%; height: 280px; background-color: lightgray; padding-left: 120px; padding-top: 120px; position:absolute; z-index:9999; opacity: 0.75" id="chargeDistanceFrequencyDistributionLoadingContainer"><div class="loadingIcon"><span class="glyphicon glyphicon-refresh"></span></div></div>
+                        <div id="chargeDistanceDash">
+                            <div id="chargeDistanceControl" style=""></div>
+                            <div id="chargeDistanceFrequencyDistribution" class="chartContainer"></div>
+                        </div>
+                    </div>
+                    <div id="selectedInputparametersContainer" style="width:100%; display: none">
+                        <div class="col-md-4" style="height: 30px !important; margin-top: -12px; padding-left: 40px !important; font-size: 9pt">
+                            Selected Friction: <span id="selectedFrictionContainer" class="label label-primary">none</span>
+                        </div>
+                        <div class="col-md-4" style="height: 30px !important; margin-top: -12px; padding-left: 40px !important; font-size: 9pt">
+                            Selected Charge: <span id="selectedChargeContainer" class="label label-primary">none</span>
+                        </div>
+                        <div class="col-md-4" style="height: 30px !important; margin-top: -12px; padding-left: 40px !important; font-size: 9pt">
+                            Selected Chargedistance: <span id="selectedChargeDistanceContainer" class="label label-primary">none</span>
+                        </div>
+                    </div>
+                </div> 
+                <div class="row" style="padding-top: 30px">
+                    <div class="col-md-4"><div style="width: 96%; height: 280px; background-color: lightgray; padding-left: 120px; padding-top: 120px; position:absolute; z-index:9999; opacity: 0.75;" id="frictionChargeScatterLoadingContainer"><div class="loadingIcon"><span class="glyphicon glyphicon-refresh"></span></div></div><div id="frictionChargeScatter" class="chartContainer"></div></div>
+                    <div class="col-md-4"><div style="width: 96%; height: 280px; background-color: lightgray; padding-left: 120px; padding-top: 120px; position:absolute; z-index:9999; opacity: 0.75" id="frictionChargeDistanceScatterLoadingContainer"><div class="loadingIcon"><span class="glyphicon glyphicon-refresh"></span></div></div><div id="chargeChargeDistanceScatter" class="chartContainer"></div></div>
+                    <div class="col-md-4"><div style="width: 96%; height: 280px; background-color: lightgray; padding-left: 120px; padding-top: 120px; position:absolute; z-index:9999; opacity: 0.75" id="chargeDistanceChargeScatterLoadingContainer"><div class="loadingIcon"><span class="glyphicon glyphicon-refresh"></span></div></div><div id="frictionChargeDistanceScatter" class="chartContainer"></div></div>
+                </div>
+               
+                <div class="row" style="padding-top: 20px">
+                    <div class="col-md-4"><div style="width: 96%; height: 280px; background-color: lightgray; padding-left: 120px; padding-top: 120px; position:absolute; z-index:9999; opacity: 0.75" id="nodeCollisionsFrictionLoadingContainer"><div class="loadingIcon"><span class="glyphicon glyphicon-refresh"></span></div></div><div id="nodeCollisionsFriction" class="chartContainer"></div></div>
+                    <div class="col-md-4"><div style="width: 96%; height: 280px; background-color: lightgray; padding-left: 120px; padding-top: 120px; position:absolute; z-index:9999; opacity: 0.75" id="nodeCollisionsChargeLoadingContainer"><div class="loadingIcon"><span class="glyphicon glyphicon-refresh"></span></div></div><div id="nodeCollisionsCharge" class="chartContainer"></div></div>
+                    <div class="col-md-4"><div style="width: 96%; height: 280px; background-color: lightgray; padding-left: 120px; padding-top: 120px; position:absolute; z-index:9999; opacity: 0.75" id="nodeCollisionsChargeDistanceLoadingContainer"><div class="loadingIcon"><span class="glyphicon glyphicon-refresh"></span></div></div><div id="nodeCollisionsChargedistance" class="chartContainer"></div></div>
+                </div>
+            </div>
+            <div style="width:49%; float: right;">
+                <div class="row" style="">
+                    <div id="paretoDash">
+                        <div class="col-md-12" id="paretoContainer">
+                            <div style="width: 100%; height: 290px; background-color: lightgray; padding-left: 50%; padding-top: 120px; position:absolute; z-index:9999; opacity: 0.75" id="paretoLoadingContainer"><div class="loadingIcon"><span class="glyphicon glyphicon-refresh"></span></div></div>
+                            <div id="paretoStructSizeMenuContainer" style="position: absolute; margin-top: 10px; right: 25px; z-index: 999; display: none">
+                                <div class="dropdown">
+                                    <button class="btn btn-primary btn-sm dropdown-toggle" type="button" data-toggle="dropdown">Structure Size: 
+                                        <span id="selectedStructsizeLabel"></span>
+                                        <span class="caret"></span></button>
+                                        <ul class="dropdown-menu">
+                                        </ul>
+                                </div>
+                            </div>
+                            <div id="paretoDash">
+                                <div id="paretoMetricControl1" style="width:50%; float: left"></div>
+                                <div id="paretoMetricControl2" style="width:50%; float: left"></div>
+                                <div style="clear: both"></div>
+                                <div id="paretoScatter" class="chartContainer">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="paretoLegend" style="font-size: 8pt; display: none"></div>
+                </div>
+                <div id="nodeLinkScatterDash">
+                    <div class="row" style="padding-top: 15px">
+                        <div class="col-md-12" id="nodeColChartContainer">
+                            <div style="width: 100%; height: 290px; background-color: lightgray; padding-left: 50%; padding-top: 120px; position:absolute; z-index:9999; opacity: 0.75" id="linkColScatterLoadingContainer"><div class="loadingIcon"><span class="glyphicon glyphicon-refresh"></span></div></div>
+                            <div id="toogleButtonsNodeColScatter" style="position: absolute; margin-top: 10px; right: 25px; z-index: 999; display: none">
+                                <div class="btn-group">
+                                  <button class="btn btn-primary btn-sm selectedButton" id="jitterLinkCol">Jitter</button>
+                                  <!--<button class="btn btn-primary btn-sm selectedButton">Cluster</button>-->
+                                </div>
+                            </div>
+                            <div id="structSizeControl" style=""></div>
+                            <div id="overviewScatter" class="chartContainer">
+                            </div>
+                        </div>
+                        <div id="hmlegend1" style="font-size: 8pt; display: none"></div>
+                    </div>
+                    <div class="row" style="">
+                        <div class="col-md-12" id="linkColChartContainer" style="padding-top: 25px">
+                            <div style="width: 100%; height: 290px; background-color: lightgray; padding-left: 50%; padding-top: 120px; position:absolute; z-index:9999; opacity: 0.75" id="nodeColScatterLoadingContainer"><div class="loadingIcon"><span class="glyphicon glyphicon-refresh"></span></div></div>
+                            <div id="toogleButtonsLinkColScatter" style="position: absolute; margin-top: 10px; right: 25px; z-index: 999; display: none">
+                            <div class="btn-group">
+                              <button class="btn btn-primary btn-sm selectedButton" id="jitterNodeCol">Jitter</button>
+                              <!--<button class="btn btn-primary btn-sm selectedButton">Cluster</button>-->
+                            </div>
+                            </div>
+                            <div id="structSizeControl2" style=""></div>
+                            <div id="overviewScatter2" class="chartContainer"></div>
+                        </div>
+                        <div id="hmlegend2" style="font-size: 8pt; display: none"></div>
+                    </div>  
+                </div>
+            </div>
+            <div style="clear:both"></div>
+        </div>
+
+       <!-- Scripts for fileupload script
+            jQuery File Upload Plugin JS:
+            taken from: https://github.com/blueimp/jQuery-File-Upload
+            Copyright 2010, Sebastian Tschan, https://blueimp.net
+            Licensed under the MIT license: http://www.opensource.org/licenses/MIT -->
+        
+        <!-- The template to display files available for upload -->
+        <script id="template-upload" type="text/x-tmpl">
+            {% for (var i=0, file; file=o.files[i]; i++) { %}
+                <tr class="template-download fade">
+                    <td>
+                        <span class="preview">
+                            {% if (file.thumbnailUrl) { %}
+                                <a href="{%=file.url%}" title="{%=file.name%}" download="{%=file.name%}" data-gallery><img src="{%=file.thumbnailUrl%}"></a>
+                            {% } %}
+                        </span>
+                    </td>
+                    <td>
+                        <p class="name">
+                            {% if (file.url) { %}
+                                <a href="{%=file.url%}" title="{%=file.name%}" download="{%=file.name%}" {%=file.thumbnailUrl?'data-gallery':''%}>{%=file.name%}</a>
+                            {% } else { %}
+                                <span>{%=file.name%}</span>
+                            {% } %}
+                        </p>
+                        {% if (file.error) { %}
+                            <div><span class="label label-danger">Error</span> {%=file.error%}</div>
+                        {% } %}
+                    </td>
+                    <td>
+                        <span class="size">{%=o.formatFileSize(file.size)%}</span>
+                    </td>
+                    <td>
+                        {% if (file.deleteUrl) { %}
+                            <button class="btn btn-danger delete" data-type="{%=file.deleteType%}" data-url="{%=file.deleteUrl%}"{% if (file.deleteWithCredentials) { %} data-xhr-fields='{"withCredentials":true}'{% } %}>
+                                <i class="glyphicon glyphicon-trash"></i>
+                                <span>Delete</span>
+                            </button>
+                            <input type="checkbox" name="delete" value="1" class="toggle">
+                        {% } else { %}
+                            <button class="btn btn-warning cancel">
+                                <i class="glyphicon glyphicon-ban-circle"></i>
+                                <span>Cancel</span>
+                            </button>
+                        {% } %}
+                    </td>
+                </tr>
+            {% } %}
+        </script>
+        <!-- The template to display files available for download -->
+        <script id="template-download" type="text/x-tmpl">
+            {% for (var i=0, file; file=o.files[i]; i++) { %}
+                <tr class="template-upload fade">
+                    <td>
+                        <span class="preview"></span>
+                    </td>
+                    <td>
+                        <p class="name">{%=file.name%}</p>
+                        <strong class="error text-danger"></strong>
+                    </td>
+                    <td>
+                        <p class="size">Processing...</p>
+                        <div class="progress progress-striped active" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><div class="progress-bar progress-bar-success" style="width:0%;"></div></div>
+                    </td>
+                    <td>
+                        {% if (!i && !o.options.autoUpload) { %}
+                            <button class="btn btn-primary start" disabled>
+                                <i class="glyphicon glyphicon-upload"></i>
+                                <span>Start</span>
+                            </button>
+                        {% } %}
+                        {% if (!i) { %}
+                            <button class="btn btn-warning cancel">
+                                <i class="glyphicon glyphicon-ban-circle"></i>
+                                <span>Cancel</span>
+                            </button>
+                        {% } %}
+                    </td>
+                </tr>
+            {% } %}
+        </script>
+        <!-- The jQuery UI widget factory, can be omitted if jQuery UI is already included -->
+        <script src="scripts/fupload/vendor/jquery.ui.widget.js"></script>
+        <!-- The Templates plugin is included to render the upload/download listings -->
+        <script src="http://blueimp.github.io/JavaScript-Templates/js/tmpl.min.js"></script>
+        <!-- The Load Image plugin is included for the preview images and image resizing functionality -->
+        <script src="http://blueimp.github.io/JavaScript-Load-Image/js/load-image.all.min.js"></script>
+        <!-- The Canvas to Blob plugin is included for image resizing functionality -->
+        <script src="http://blueimp.github.io/JavaScript-Canvas-to-Blob/js/canvas-to-blob.min.js"></script>
+        <!-- Bootstrap JS is not required, but included for the responsive demo navigation -->
+        <script src="http://netdna.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
+        <!-- blueimp Gallery script -->
+        <script src="http://blueimp.github.io/Gallery/js/jquery.blueimp-gallery.min.js"></script>
+        <!-- The Iframe Transport is required for browsers without support for XHR file uploads -->
+        <script src="scripts/fupload/jquery.iframe-transport.js"></script>
+        <!-- The basic File Upload plugin -->
+        <script src="scripts/fupload/jquery.fileupload.js"></script>
+        <!-- The File Upload processing plugin -->
+        <script src="scripts/fupload/jquery.fileupload-process.js"></script>
+        <!-- The File Upload image preview & resize plugin -->
+        <script src="scripts/fupload/jquery.fileupload-image.js"></script>
+        <!-- The File Upload audio preview plugin -->
+        <script src="scripts/fupload/jquery.fileupload-audio.js"></script>
+        <!-- The File Upload video preview plugin -->
+        <script src="scripts/fupload/jquery.fileupload-video.js"></script>
+        <!-- The File Upload validation plugin -->
+        <script src="scripts/fupload/jquery.fileupload-validate.js"></script>
+        <!-- The File Upload user interface plugin -->
+        <script src="scripts/fupload/jquery.fileupload-ui.js"></script>
+        <!-- The main application script -->
+        <script src="scripts/fupload/main.js"></script>
+    </body>
+</html>

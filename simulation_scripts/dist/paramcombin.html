@@ -1,0 +1,33 @@
+<html>
+<head>
+</head>
+<body>
+<script>
+var friction = [0.35,0.4,0.45,0.5,0.55,0.6,0.65,0.7,0.75,0.8,0.85,0.9,0.95] ;
+var charge = [-200,-190,-180,-170,-160,-150,-140,-130,-120,-100,-90,-80,-70,-60,-50,-40,-30] ;
+var chargeDistance = [30,40,50,60,70,80,90,100,110,120,130,140,150] ;
+var frictionXcharge = [] ;
+var frictionXchargeXchargedist = [] ; 
+
+for(var i = 0 ; i < friction.length ; i++){
+	for(var j = 0 ; j < charge.length ; j++){
+		frictionXcharge.push([friction[i],charge[j]]) ;
+	}
+}
+
+
+for(var i = 0 ; i < frictionXcharge.length ; i++){
+	for(var j = 0 ; j < chargeDistance.length ; j++){
+		frictionXchargeXchargedist.push([frictionXcharge[i][0],frictionXcharge[i][1],chargeDistance[j]]) ;
+	}
+}
+
+var parameterCombinations = {combinations: frictionXchargeXchargedist} ;
+
+console.log(JSON.stringify(parameterCombinations)) ;
+
+console.log("All tests completed!") ;
+
+</script>
+</body>
+</html>

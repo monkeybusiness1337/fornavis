@@ -1,0 +1,299 @@
+@import url("//netdna.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css");
+             
+html {
+    overflow: -moz-scrollbars-vertical;
+    overflow: scroll;
+}
+
+body{
+    padding: 0px ;
+    margin: 0px ;
+}
+
+@font-face {
+    font-family: 'ubuntu_monobold';
+    src: url('ubuntumono-b-webfont.eot');
+    src: url('ubuntumono-b-webfont.eot?#iefix') format('embedded-opentype'),
+         url('ubuntumono-b-webfont.woff2') format('woff2'),
+         url('ubuntumono-b-webfont.woff') format('woff'),
+         url('ubuntumono-b-webfont.ttf') format('truetype'),
+         url('ubuntumono-b-webfont.svg#ubuntu_monobold') format('svg');
+    font-weight: normal;
+    font-style: normal;
+
+}
+ nav ul li{
+ }
+
+ nav ul li a{
+     color: #fff !important ;
+ }
+ nav ul li.active a{
+     background-color: #3D4353 !important;
+ }
+.navbar{
+     background-color: #3D3242 !important ;
+     border: none ;
+     font-family: 'ubuntu_monobold' ;
+}
+.navbar-header{
+    width: 230px ;
+}
+.navbar-brand, .navbar-brand a{
+    font-size: 17pt ;
+    font-family: 'ubuntu_monobold';
+    color: #E18942 !important ;
+}
+
+
+.col-md-4{
+    height: 290px; 
+    padding-top: 10px ;
+    padding-left: 0px !important ;
+    padding-right: 15px !important ;
+}
+.col-md-12{
+    height: 290px;
+    padding-top: 10px ;
+    padding-left: 0px !important ;
+}
+#dashboardContainer{
+    margin-top: 40px;
+    padding-left: 50px ;
+    padding-right: 50px ;
+    display: none ;
+}
+#userInputs{
+    height: 200px;
+    width: 500px ;
+    position: absolute ;
+    z-index: 100 ;
+    border: 1px solid darkgray ;
+    background-color: white ;
+    right: 5px ;
+    top: 5px ;
+    opacity: 0.8 ;
+}
+nav{
+    z-index: 10 !important;
+}
+.inputParamFilterField{
+    width: 50px ;
+}
+
+.loadingPlaceHolder{
+    width:100%; 
+    height:100% ; 
+    margin: 0 auto; 
+    background-color: lightgray ;
+    /*visibility: hidden ;*/
+    text-align: center ;
+    padding-top: 70px ;
+}
+
+#overlay{
+    width: 100%; 
+    height: 100% ;
+    margin-top: -10px ;
+    background-color: rgb(119, 119, 119); 
+    opacity: 0.8; 
+    position: absolute; 
+    z-index: 10000;
+    display: block ;
+}
+
+#startContainer{
+    width: 700px ;
+    padding: 30px ;
+    border-radius: 5px ;
+    position: absolute ;
+    left: 50% ;
+    top: 50% ;
+    margin-left: -350px ;
+    margin-top: -300px ;
+    background-color: white ;
+    opacity: 1 ;
+    position: absolute; 
+    z-index: 99999999;
+}
+
+.loadingIcon {
+    width: 40px; 
+    height: 40px;    
+    -webkit-animation: spin 2s infinite linear;
+}
+
+@-webkit-keyframes spin {
+    0%  {-webkit-transform: rotate(0deg);}
+    100% {-webkit-transform: rotate(360deg);}   
+}
+
+#loadingText{
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    font-size: 25px;
+    width: 275px ;
+    margin-left: -140px ;
+    color: white ;
+    font-family: 'ubuntu_monobold';
+}
+
+.loadingIcon span{
+    font-size: 40px;
+}
+
+
+#inputParamFilter{
+    position: absolute; 
+    background-color: #3D3242; 
+    padding: 8px;
+    z-index: 100;
+    border-radius: 5px;
+    margin-top: -50px;
+    opacity: 0.9;
+    right: 40px ;
+}
+
+#inputParametersContainer{
+    display: none ;
+}
+
+#inputParamFilterLabel{
+    cursor: pointer ;
+}
+
+#closeFilters{
+    cursor: pointer ;
+    margin-left: 20px ;
+}
+
+.loadingPlaceHolder span{
+    font-size: 50px ;
+}
+
+.input-group{
+    margin-top: 5px ;
+}
+
+#updateDashboard, #closeFilters{
+    margin-top: 5px ;
+}
+
+#inputParamFilter{
+    font-family: 'ubuntu_monobold';
+}
+
+#inputParamFilter label{
+    color: white ;
+}
+
+.input-group-addon{
+    width: 158px !important;
+    text-align: left !important ;
+}
+
+.inputParamFilterField{
+    text-align: center ;
+}
+
+#clusteredPointsDetailsContainer{
+    z-index: 999999 ;
+    background-color: white ;
+    width: 700px ;
+    padding: 30px ;
+    border-radius: 5px ;
+    position: absolute ;
+    left: 50% ;
+    top: 50% ;
+    margin-left: -350px ;
+    margin-top: -300px ;
+    display: none ;
+}
+
+#clusteredPointsDetails table{                                                                                                                                                                                                                          
+    width: 100%
+}
+
+#clusteredPointsDetails tbody td, 
+#clusteredPointsDetails thead th {
+    width: 150px;
+    text-align: center ;
+}
+
+#clusteredPointsDetails thead, 
+#clusteredPointsDetails tbody { 
+    display: block; 
+}
+
+#clusteredPointsDetails tbody {
+    max-height: 400px;       
+    overflow-y: auto;    
+    overflow-x: hidden;  
+}
+
+#overviewScatter .google-visualization-tooltip,
+#overviewScatter2 .google-visualization-tooltip,
+#paretoScatter .google-visualization-tooltip{
+    min-width: 135px !important ;
+    max-width: 220px !important ;
+}
+
+#nodeCollisionSlider .noUi-base, #linkCollisionSlider .noUi-base{
+    background-color: #337ab7 !important ;
+}
+
+ .noUi-base, .noUi-origin, .noUi-background, .noUi-stacking{
+    background-color: white !important ;
+}
+
+ .noUi-connect{
+    background-color: #337ab7 !important ;
+}
+
+.selectedButton{
+    background-color: #2e6da4 !important ;
+}
+
+#fornatestContainer{
+    z-index: 9999999 ;
+    background-color: white ;
+    position: absolute ;
+    width: 90%;
+    height: 98% ;
+    margin-left: 5% ;
+    display: none ;
+    padding: 25px ;
+}
+
+#selectmenuContainerStructuresLeft .bootstrap-select,
+#selectmenuContainerStructuresRight .bootstrap-select{
+    width: 100% !important ;
+}
+
+.selected{
+    background-color: #e6e6e6 !important ;
+    
+}
+
+#startContainerErrors{
+    display: none ;
+}
+
+#lastStep{
+    display: none ;
+}
+
+.progress-bar {
+    -webkit-transition: none !important;
+    transition: none !important;
+}
+
+#simulationsTable tbody tr:hover{
+    background-color: #ededed ;
+    cursor: pointer ;
+}
+
+#simualation tr.selected td{
+    background-color: #5cb85c ; 
+}
