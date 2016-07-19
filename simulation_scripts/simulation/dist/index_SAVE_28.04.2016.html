@@ -1,0 +1,155 @@
+<!DOCTYPE html><html lang=""><head><meta charset="utf-8"><title>Fornac Example</title></head><body>This is an RNA container:<div id="rna_ss"></div>asdasd<div id="rna_ss2"></div>This is an output of an RNA folded using RNAcofold:<div id="cofold_ss"></div>This is a custom-colored RNA:<div id="custom_colors"></div><script src="scripts/fornac.js"></script><script src="scripts/d3_modified.js"></script><script type="text/javascript">"use strict"
+
+// (p0_x,p0_y) -> (p1_x, p1_y) ... one line
+        // (p2_x,p2_y) -> (p3_x, p3_y) ... other line
+        function line_intersects(p0_x, p0_y, p1_x, p1_y, p2_x, p2_y, p3_x, p3_y) {
+
+            var s1_x, s1_y, s2_x, s2_y;
+            s1_x = p1_x - p0_x;
+            s1_y = p1_y - p0_y;
+            s2_x = p3_x - p2_x;
+            s2_y = p3_y - p2_y;
+
+            var s, t;
+            s = (-s1_y * (p0_x - p2_x) + s1_x * (p0_y - p2_y)) / (-s2_x * s1_y + s1_x * s2_y);
+            t = ( s2_x * (p0_y - p2_y) - s2_y * (p0_x - p2_x)) / ( - s2_x * s1_y + s1_x * s2_y);
+            if (s >= 0 && s <= 1 && t >= 0 && t <= 1)
+            {
+                // Collision detected
+                return 1;
+            }
+
+            return 0; // No collision
+        }
+
+        function circle_intersects(circle1, circle2){
+
+            var dx = circle1.x - circle2.x;
+            var dy = circle1.y - circle2.y;
+            var distance = Math.sqrt(dx * dx + dy * dy);
+
+            if (distance < circle1.radius + circle2.radius) {
+                return 1 ;
+            }
+            return 0 ;
+        }
+        function writeSVG(){
+            var svg = document.getElementById('plotting-area');
+            var svg_string = new XMLSerializer().serializeToString(svg);
+            return svg_string;
+        };
+
+function normalContainer() {
+    var inputParam = {'applyForce': true, 'allowPanningAndZooming': true, 'initialSize':[1000,1000],
+                'friction': 0.9,
+                'middleCharge': -130,
+                'otherCharge': -500,
+                'linkDistanceMultiplier': 15,
+                'chargeDistance': 110
+            }
+    var container = new fornac.FornaContainer("#rna_ss", inputParam); 
+       /* let options = {'structure': '(((((..........))))).............((((((...................))))))((((((.......))))))....((..((((.....(((((((....)))))))......))))..))........',
+        'sequence': 'GCACCAUUGCACUCCGGUGCCAGUUGACGAGGUGGGGUUUAUCGAGAUUUCGGCGGAUGACUCCCGGUUGUUCAUCACAACCGCAAGCUUUUACUUAAAUCAUUAAGGUGACUUAGUGGACAAAGGUGAAAGUGUGAUGA'
+        };*/
+       /* var options = {'structure': '..(((((.(.(((((.....(((.((.(((((..((..((((.((...))))))...))..))))).)))))......(((((.........)))))(((((((((((((......))..)))).......))))))).(((.((((((.(((.....(((.((.(((((((((((.(...((((((.((...((((......))))))))))))....).))))))))))).)).)))..((((.(((....)))))))(((...(((...))).)))((((....))))))).))).))).)))((((.((..(((((((.(((.....(((.((((............)))).)))....)))..)))))))..))...)))).)))))))))))..',
+        'sequence': 'CUGAAGUGCAGGGUUUGAUAGCUCGUGUGUGGUUUCCAUAUGAGUAUAGCCGUAAACGAUUCUACAAACAGCACAGUAGUUUAAAUCAUAUCUAAGCCAGUUGGGCCCGGAUGAGACCAAGGGUGAUAUUGCCAGCUGAGGUGGAUCGCAUCGCUAGCCUCCACGACACUCUUUGUGUGUUGCGAACGAGGCCCAUAUGUUGCUAUGCUGUUCGUUAAAGGAUAGAGGGUGUGGUUGAGAACUCUAGAGCAGGCUCGGGGGCGAAAUGAUAUUCAACGCGGCGGACACGCCUGAAGCGCAUCGACUGGCACGUUUCGGGGGACAGACGUAAUGUAUUCCAGAUUUUAAGGAGGAAGGCGACAAUCUAAUCCCCUGUUACCAUUGCUCAACCCGAUUUCUC'
+        };*/
+        
+        /*var options = {'structure': '(((((((....((((((..........((((....))))(((..((((((((.(((.........((((((.(((((.(((.(.(((((((((..(((((.((((......(....)......))))...))))).)))).......)))))).))).)))))(((((.....))))).....(((((...)))))(((((((((..((((.((((((((((((((((.(((.((((((...(((.((((((.....)))))).)))...((((((.......(((.....))).......))))))......(((((((..........)))))))(((((....))))).(((.((.(((..(((((.((((....).)))...)))))..))))).)))...)))))).))).))))))))).)))))))))))..)))..............(((...)))...(((((((........))).))))......((((..(((((((..((((.((.((((..........))))..)))))).)))))))..)))).......(((((....))))).....))))))(((.((...((..(((((........)))))..))...)))))....((((((((((..(((((......))))).)))).....))))))....((....))............)))))))))...))))))))..)))))))))....))))))).',
+        'sequence': 'UGGAGGGGAUUACGGUAAGCUACUAGAGCAACAUCUUGCCUCCACUCCUAUUUCAGUAAAACCAUGCCUUGACAUGAUGGGGACUUUAGAGCCAACAGCUAUGAGUGAUAGGGGUACGCGAGUCUCAGGGGGUUGGGGCUACAUAAACUAAAUGCCCUUCAUGGUCUAUUUACUAGAUUCCAACCUCACAAUGAGGGCUGAACGGGAGCCCCGAGCUGGCGAUUGUGGGGAGAGUAGCAUGUGAUGAGGGGAUAUGCUCUCCUGAUCCUAGGCACGAUAGUAGAUUUAUUUAGUAAAAAGACGUGCCCUUAUGCAUGAAGACACACUGCCCUUCGUGGGUCUAUCAGGACCAGAUGGUGCAUUGGAGACACACCUCCUGCGUGAGAGUCUCAUAUGGCGAUCCUUUGCUAUACUUGUCAUGGUCGCCCAGUUCGGGCCACCGGCCUAAAAAAUUACUGCCUUGCACCCGGAUGGAUUUACUCUUCCUAUUCUACGAAGGUCACUCUGUCAAGAGAGCUGCGGCCCAUUAUAGCAGGCCAUCACUUUGUGACGGAUCGACCGAGCAUUUCGUCUAAGGACGAUAAAAUUCAGCAGGACUAUUCGCCCUGCGUACGGAUCCGCAGAACGUCCAGCCUAAUCGUCCCUAGUUACAAUGCGUUCUGGCGUUAAACUUUGACAGGGACUGCAGCGGAAGCCAUAGAUAAUUACAAGGUCUGUCCAGUAGGGGCAGAGUGCUGUCUGACCUUCCAA '
+        };*/
+        
+        var options = {'structure': '((((((....)).)))).((((((.........(((.((((((..........)))))).)))...((.....))(((((.((.(((.....(((.((.(((((((((((((((((...)))).)))))).......((((((((...(((((((((..(((((.((((((...(((....((........))..))))))))).((.....))..))))))))).....))).))....)))))))).......)))))).).)).))).....))).)).)))))..((((((((((((.....(((((...(((.(((...))).)))....)))))..((........))(((((...)))))..(((((((......(((((..((.(((((....)))))))..((((.....)))).(((((((.....))))))).......)))))........)))).)))))))))))))))..)))))).........',
+        'sequence': 'GGUCCUCUGAAGCGACCAACGGCCCUUUUACUCGACCUACGUCGCGAUUUUCAGACGUAUGUCCACCCUCAGCGGAUUGCACAUCGAAUGCUUGACUGUGGAUCCUUUGUGGCUGUAUUACGGACCACGAGCCCCUCCCCAGUGGAAAUGGCUGCGGAGUGCAGAGUUGCCCAUUGGAAUCACGGAAAGAAGUAACCAGGUAACCACUCGUUGUAACUGCACCGCCUUAGAGCACGAAAACUGCUGGGACCUUGUAGGAUCACUCAAUCAUAGACUUGUUGCGCAGUGUUGUAGUUCUAGAUGAUCCGAGACUGAUGACUAAUCUAGCUAUGUUCUCUUGUUGAUAUUUAAUUCACCUCGUAGAGGUACGCCCUGGAAUAACUCAGGCCAGACAUAUCGACAUAUGCUAUAGGAUUGACUCCUUCACACUCUUCUUGGGUGUGUAUUAAACCUGAAAGAAAGACCAGUGGUUUUGGGACUACAUUGGCCGUCUGUGAGCU'
+        };
+    var jsoncode = container.addRNA(options.structure, options);
+    //console.log(jsoncode) ;
+    container.setSize();
+    
+    setTimeout(function(){
+        var links = jsoncode.links ;
+    
+        //console.log("links: " + links.length) ;
+        
+        var backbonelinkcollisions = 0 ;
+        var basepairlinkcollsions = 0 ;
+        for(var i = 0 ; i < links.length ; i++){
+            
+            for(var j = 0 ; j < links.length ; j++){
+                
+                // backbone collision check
+                // for basepair collision check: (links[i].linkType === "basepair" && links[j].linkType === "basepair"
+                if(i!=j 
+                   && links[i].linkType !== "fake" && links[j].linkType !== "fake" 
+                   && links[i].linkType !== "fake_fake" && links[j].linkType !== "fake_fake"
+                   && links[i].linkType === "backbone" && links[j].linkType === "backbone"
+                   && links[i].source.nodeType !== "middle" && links[i].target.nodeType !== "middle"
+                   && links[j].source.nodeType !== "middle" && links[j].target.nodeType !== "middle"
+                   && links[i].source.num != links[j].target.num && links[i].target.num != links[j].source.num
+                   && links[i].source.num != -1 && links[i].target.num != -1 
+                   && links[j].source.num != -1 && links[j].target.num != -1){                  
+                  
+                    
+                if(line_intersects(links[i].source.x, links[i].source.y, links[i].target.x, links[i].target.y, links[j].source.x, links[j].source.y, links[j].target.x, links[j].target.y)){
+                      /*  console.log(links[i].source.name + "(" + links[i].source.num + ") -> " + links[i].target.name + "(" + links[i].target.num + ") ; type: " + links[i].linkType) ;
+                        console.log("is intersecting") ;
+                        console.log(links[j].source.name + "(" + links[j].source.num + ") -> " + links[j].target.name + "(" + links[j].target.num + ") ; type: " + links[i].linkType) ;*/
+                        backbonelinkcollisions++ ;
+                    }
+                        
+                }
+                
+                 if(i!=j 
+                   && links[i].linkType !== "fake" && links[j].linkType !== "fake" 
+                   && links[i].linkType !== "fake_fake" && links[j].linkType !== "fake_fake"
+                   && links[i].linkType === "basepair" && links[j].linkType === "basepair"
+                   && links[i].source.nodeType !== "middle" && links[i].target.nodeType !== "middle"
+                   && links[j].source.nodeType !== "middle" && links[j].target.nodeType !== "middle"
+                   && links[i].source.num != links[j].target.num && links[i].target.num != links[j].source.num
+                   && links[i].source.num != -1 && links[i].target.num != -1 
+                   && links[j].source.num != -1 && links[j].target.num != -1){                  
+                  
+                    
+                if(line_intersects(links[i].source.x, links[i].source.y, links[i].target.x, links[i].target.y, links[j].source.x, links[j].source.y, links[j].target.x, links[j].target.y)){
+                      /*  console.log(links[i].source.name + "(" + links[i].source.num + ") -> " + links[i].target.name + "(" + links[i].target.num + ") ; type: " + links[i].linkType) ;
+                        console.log("is intersecting") ;
+                        console.log(links[j].source.name + "(" + links[j].source.num + ") -> " + links[j].target.name + "(" + links[j].target.num + ") ; type: " + links[i].linkType) ;*/
+                        basepairlinkcollsions++ ;
+                    }
+                        
+                }
+            }
+        }
+
+        var nodes = jsoncode.nodes ;
+        var nodecollisions = 0 ;
+        for(var i = 0 ; i < nodes.length ; i++){
+            for(var j = 0 ; j < nodes.length ; j++){
+                if(i!=j && nodes[i].nodeType === "nucleotide" && nodes[j].nodeType === "nucleotide"){
+                    var c1 = {radius: nodes[i].radius, x: nodes[i].x, y: nodes[i].y} ;
+                    var c2 = {radius: nodes[j].radius, x: nodes[j].x, y: nodes[j].y} ;
+                    if(circle_intersects(c1,c2)){
+                        //console.log("detected node collision: " + nodes[i].name + " (" + nodes[i].num + ") " + nodes[j].name + " (" + nodes[j].num + ")") ;
+                        nodecollisions++ ;
+                    }
+                }
+            }
+        }
+
+        //console.log("backbonelinecollisions: " + backbonelinkcollisions/2) ;
+        //console.log("basepairlinkcollsiosn: " + basepairlinkcollsions) ;
+        //console.log("nodecollisions: " + nodecollisions) ;
+        var graphSvg = writeSVG() ;
+        
+        var output = {backboneLinkCollisions: backbonelinkcollisions/2, basepairLinkCollisions: basepairlinkcollsions, nodeCollisions: nodecollisions, svg: graphSvg, options: options, inputParameters: inputParam} ;
+        //console.log(output) ;
+        console.log(JSON.stringify(output)) ;
+        console.log("All tests completed!") ;
+    }, 2500) ;
+    
+    
+    
+}
+
+
+normalContainer();</script></body></html>
